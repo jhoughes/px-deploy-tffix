@@ -19,12 +19,11 @@ This will deploy one or more clusters in the cloud, with optional post-install t
  * AWS
  * GCP
  * Azure
- * Vsphere
+ * vSphere
 
 ## Getting started
 
-1. Install the CLI for your choice of cloud provider and ensure it is configured:
- * AWS: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
+1. For GCP and Azure, install the CLI and ensure it is configured:
  * GCP: https://cloud.google.com/sdk/docs/quickstarts
  * Azure: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
 
@@ -45,23 +44,25 @@ This will:
  * create and populate `$HOME/.px-deploy`
  * provide instructions to configure `.bash_profile`/`.zshrc`
 
-5. Deploy something:
+5. Edit `$HOME/.px-deploy/defaults.yml`. If you are using AWS or vSphere, set the parameters are appropriate.
+
+6. Deploy something:
 ```
 px-deploy create --name=myDeployment --template=clusterpair
 ```
 This will provision a VPC and some other objects, and deploy into it from the template.
 
-6. Connect via SSH:
+7. Connect via SSH:
 ```
 px-deploy connect --name myDeployment
 ```
 
-7. Execute a command:
+8. Execute a command:
 ```
 px-deploy connect --name myDeployment "storkctl get clusterpair"
 ```
 
-8. Tear down the deployment:
+9. Tear down the deployment:
 ```
 px-deploy destroy --name myDeployment
 ```
