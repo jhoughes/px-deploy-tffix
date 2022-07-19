@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"bufio"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -15,9 +17,6 @@ import (
 	"syscall"
 	"time"
 	"unicode/utf8"
-	"net/http"
-	"encoding/base64"
-
 
 	"github.com/go-yaml/yaml"
 	"github.com/google/uuid"
@@ -683,7 +682,10 @@ func create_deployment(config Config) int {
 	_Vsphere_userdata=$(echo -e '#cloud-config\nusers:\n  - default\n  - name: centos\n    primary_group: centos\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    groups: sudo, wheel\n    ssh_import_id: None\n    lock_passwd: true\n    ssh_authorized_keys:\n    - '$(cat keys/id_rsa.vsphere.`+config.Name+`.pub) | base64 -w0)
 	echo vsphere__userdata: $_Vsphere_userdata >>deployments/`+config.Name+`.yml
       `).CombinedOutput()
-		}
+      			err := os.Mkdir("/px-deploy/.px-deploy/terraform/" + config.Name, 0755)
+			if err != nil {
+				die(err.Error())
+			}
 			write_tf_file(config.Name, "vsphere.auto.tfvars", map[string]string{
 				"deployment_name": config.Name,
 				"cluster_count": config.Clusters,
@@ -705,6 +707,7 @@ func create_deployment(config Config) int {
 				"vsphere_insecure": "true",
 				"vsphere_userdata" : "I2Nsb3VkLWNvbmZpZwp1c2VyczoKICAtIGRlZmF1bHQKICAtIG5hbWU6IGNlbnRvcwogICAgcHJpbWFyeV9ncm91cDogY2VudG9zCiAgICBzdWRvOiBBTEw9KEFMTCkgTk9QQVNTV0Q6QUxMCiAgICBncm91cHM6IHN1ZG8sIHdoZWVsCiAgICBzc2hfaW1wb3J0X2lkOiBOb25lCiAgICBsb2NrX3Bhc3N3ZDogdHJ1ZQogICAgc3NoX2F1dGhvcml6ZWRfa2V5czoKICAgIC0gc3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFER3l5UHFnRmpWcGZJUXE0RHNmc0lhL2xKWG55dWpQYlBHT1FVa0Z6MWNTeXRnVmNJbzF4T1N5T0ZmWDJzWldjQzVmUXo0b2Z3cVUweUIycEovRDA5ZDBMWEFvL2hiWWpHemdacm1YcVBwQ0VWWkY5b0ZUVWlTL0hwZjlpdm92YkZUdXpyNVRjMHRuTy9vNGdrMi9uNGlGSTlCOGVyTDlseGgyQ3ExSU5oNUU2cHNiY1lmcUFRRkZ2RmFJYWIzUitVdDh4TzdPMnYwNUM3MXY2OFg0SjdQelB5MDM3UjNHQ3RnMU80aDR4UlVhVnpCUVJaeW1xWkNSMnpCOWg3OGVTMFUyQnRQbFAvUXNHSmZLeC95Zy95QVhSZW42OFpIU1dwRmJhc0Z2bG5wNG1NK29VWFp5K0Z4NDRXdE9HREwrT3hWd3pTYng4VXFwSU0zRFpBRXVQT2Qgcm9vdEA5NThmOWJjMGI2NzgK",
 			})
+		}
 	default:
 		die("Invalid cloud '" + config.Cloud + "'")
 	}
